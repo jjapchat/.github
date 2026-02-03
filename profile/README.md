@@ -27,7 +27,7 @@
 ## 3. Task
 |No.|Backend|기간|AI Chatbot|기간|
 |:---|:---|:---|:---|:---|
-|1|[IaC로 AWS infra 구축](https://github.com/jjapchat/.github/blob/main/docs/AWS_INFRA.md)|2026.02|||
+|1|[IaC로 AWS infra 구축]|2026.02|||
 |2|프로젝트 구조 - multi module||||
 |3|API 개발, 테스트코드||||
 |4|Observability - PGL 스택, 지표정의||||
@@ -35,6 +35,7 @@
 |6|대용량 트래픽 대응||||
 |7|인증/인가 적용||||
 
+[IaC로 AWS infra 구축]: https://github.com/jjapchat/.github/blob/main/docs/AWS_INFRA.md
 
 ## 4. 주요 기능
 
