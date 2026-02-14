@@ -30,3 +30,12 @@
 
 
 # 실습
+
+## 1. 명령어 정리
+- `terraform fmt` : Terraform 공식 권장 코드 스타일로 main.tf 내 filter 블록을 재작성. ESLint 같은 역할
+- `terraform validate` : 작성한 main.tf 파일에 대한 오류 사전 검출
+- `terraform init` : 필요한 설정 세팅 (ex. AWS secret key 등을 AWS configuration에 세팅해줌. `aws configure list`로 확인)
+- `terraform apply` : 설정대로 인프라 세팅
+  - terraform.tfstate 라는 파일 생성됨
+- `terraform show` : 현재 모든 상태 출력
+- `terraform state list` : 현재 state에 대한 resource, data 들을 출력
