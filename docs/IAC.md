@@ -45,6 +45,9 @@
   - `terraform -install-autocomplete`
 - AWS CLI 설치
   - 과거에 설치하였으므로 [AWS 공식문서 참고](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- 환경변수 관리
+  - Terraform CLI 사용을 위해서는 ${AWS_ACCESS_KEY_ID}와 같은 환경변수들이 계속 필요하므로 이를 안전하고 편리하게 관리할 필요성 존재
+  - 일단 하나씩 export하고,  추후 작성
 
 ## 1. 명령어 정리
 - `terraform fmt` : Terraform 공식 권장 코드 스타일로 main.tf 내 filter 블록을 재작성. ESLint 같은 역할
@@ -52,17 +55,42 @@
 - `terraform init` : 필요한 설정 세팅 (ex. AWS secret key 등을 AWS configuration에 세팅해줌. `aws configure list`로 확인)
 - `terraform apply` : 설정대로 인프라 세팅
   - terraform.tfstate 라는 파일 생성됨
+  - _**해당 파일은 password 또는 keys를 포함할 수 있으므로 제한된 환경에서 infra admin만 접근 가능하도록 관리해야함. HCP Terraform을 통해 원격 관리 권장**_
 - `terraform show` : 현재 모든 상태 출력
 - `terraform state list` : 현재 state에 대한 resource, data 들을 출력
+- `terraform destory` : 모든 리소스 종료
 
-## 2. Terraform이 사용할 AWS 계정 설정
-- root 계정은 모든 자원/설정에 대한 full access를 가지므로 root 계정으로 AWS CLI 사용은 금지됨
-- Terraform이 사용할 계정 = AWS CLI가 사용할 계정은 AWS console에서 생성
-  - User와 Access Key 생성 후 .csv로 다운로드
-  - `aws configure import --csv file://${FILE_NAME}.csv`
-- IMA 사용자에게 역할 부여 방식은 2가지. 관리 용이성을 위해 Role-based 채택
-  1. `User-based` 사용자 단위로 policy(resource에 대한 권한 정보) 할당을 통해 권한 부여하는 방식
-  2. `Role-based` Role/Group 단위로 policy 정의해두고, 사용자가 소속되면 사용자에게 해당 권한 부여되는 방식
-- IAM 사용자 생성
-  - 
-- IAM role 부여
+## 2. Terraform 공식문서 따라하기([aws-get-started](https://developer.hashicorp.com/terraform/tutorials/aws-get-started))
+- IAM User 생성
+  - root 계정은 모든 자원/설정에 대한 full access를 가지므로 root 계정으로 AWS CLI 사용은 금지됨
+  - Terraform이 사용할 계정 = AWS CLI가 사용할 계정은 AWS console에서 생성
+    - User와 Access Key 생성 후 .csv로 다운로드
+    - `aws configure import --csv file://${FILE_NAME}.csv`
+    - `cat ~/.aws/credentials`
+- IAM Role 생성
+  - IAM 사용자 역할 부여 방식 2가지
+    1. `User-based` 사용자 단위로 policy(resource에 대한 권한 정보) 할당을 통해 권한 부여하는 방식
+    2. `Role-based` Role/Group 단위로 policy 정의해두고, 사용자가 소속되면 사용자에게 해당 권한 부여되는 방식. 관리 용이성을 위해 채택
+- Terraform 파일 작성
+  - `terraform.tf`
+  - `main.tf`
+  - `terraform fmt`
+- 생성
+  - `terraform init`
+  - `terraform validate`
+  - `terraform apply`
+    - 만약 default VPC는 있으나 default subnet이 없다면 직접 생성 필요
+    - `aws ec2 create-default-subnet --availability-zone us-west-2a`
+    - `aws ec2 describe-subnets --region us-west-2`
+  - `terraform state list`
+- 관리
+  - input variable을 넘겨줘서 동적으로 plan 변경 가능
+    - `terraform plan -var instance_type=t2.large`
+  - module block
+    - resource 구성을 커스터마이징 할 수 있음
+    - 예를 들어, VPC에 대한 상세 구성(CIDR, subnet 등)을 module로 정의해두면 해당 설정대로 Terraform이 생성
+- 삭제
+  - 일부 resource만 정리하려면, 해당 resource 부분 주석처리 후 `terraform apply`
+    - 특정 리소스 종료를 아래처럼 `-target`으로 진행할 수 있으나, 의존성 꼬일 수 있으므로 긴급 상황용으로만 사용 권장
+      - `terraform destroy -target=aws_instance.app_server`
+  - 전체 종료는 `terrafrom destory`
