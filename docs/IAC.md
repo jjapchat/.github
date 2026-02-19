@@ -31,6 +31,21 @@
 
 # 실습
 
+## 0. 설치
+- (Optional) Xcode 버전 관련 이슈가 발생하는 경우, 재설치
+  - `sudo rm -rf /Library/Developer/CommandLineTools`
+  - `sudo xcode-select --install`
+  - `brew update`
+- Terraform CLI 설치
+  - `brew tap hashicorp/tap`
+  - `brew install hashicorp/tap/terraform`
+    - 정상설치 확인
+      - `terraform -help`
+  - `touch ~/.zshrc`
+  - `terraform -install-autocomplete`
+- AWS CLI 설치
+  - 과거에 설치하였으므로 [AWS 공식문서 참고](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
 ## 1. 명령어 정리
 - `terraform fmt` : Terraform 공식 권장 코드 스타일로 main.tf 내 filter 블록을 재작성. ESLint 같은 역할
 - `terraform validate` : 작성한 main.tf 파일에 대한 오류 사전 검출
@@ -39,3 +54,15 @@
   - terraform.tfstate 라는 파일 생성됨
 - `terraform show` : 현재 모든 상태 출력
 - `terraform state list` : 현재 state에 대한 resource, data 들을 출력
+
+## 2. Terraform이 사용할 AWS 계정 설정
+- root 계정은 모든 자원/설정에 대한 full access를 가지므로 root 계정으로 AWS CLI 사용은 금지됨
+- Terraform이 사용할 계정 = AWS CLI가 사용할 계정은 AWS console에서 생성
+  - User와 Access Key 생성 후 .csv로 다운로드
+  - `aws configure import --csv file://${FILE_NAME}.csv`
+- IMA 사용자에게 역할 부여 방식은 2가지. 관리 용이성을 위해 Role-based 채택
+  1. `User-based` 사용자 단위로 policy(resource에 대한 권한 정보) 할당을 통해 권한 부여하는 방식
+  2. `Role-based` Role/Group 단위로 policy 정의해두고, 사용자가 소속되면 사용자에게 해당 권한 부여되는 방식
+- IAM 사용자 생성
+  - 
+- IAM role 부여
